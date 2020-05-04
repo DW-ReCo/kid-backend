@@ -36,3 +36,4 @@ npm-debug.log
 /.blackbox/pubring.kbx~
 /.blackbox/secring.gpg
 /config/dev.secret.exs
+/config/prod.secret.exs
