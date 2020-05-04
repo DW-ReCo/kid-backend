@@ -1,0 +1,11 @@
+<h2>Dashboard</h2>
+
+<p>Logged in as <%= @current_user.username %></p>
+
+<h3>Admin</h3>
+
+<%= link (gettext "Users"), to: Routes.user_path(@conn, :index), class: "button" %>
+
+<h3>Self</h3>
+
+<%= link (gettext "Logout"), to: Routes.session_path(@conn, :logout), class: "button" %>

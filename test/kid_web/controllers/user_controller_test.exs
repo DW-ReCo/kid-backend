@@ -1,15 +1,18 @@
 defmodule KidWeb.UserControllerTest do
   use KidWeb.ConnCase
 
-  alias Kid.Accounts
+  alias Kid.Accounts.Guardian
 
-  @create_attrs %{email: "some email", hashed_password: "some hashed_password", password: "some password", username: "some username"}
-  @update_attrs %{email: "some updated email", hashed_password: "some updated hashed_password", password: "some updated password", username: "some updated username"}
-  @invalid_attrs %{email: nil, hashed_password: nil, password: nil, username: nil}
+  # Set conn struct to have authenticated session for all tests
 
-  def fixture(:user) do
-    {:ok, user} = Accounts.create_user(@create_attrs)
-    user
+  setup %{conn: conn} do
+    user = insert(:user)
+
+    conn =
+      conn
+      |> Guardian.Plug.sign_in(user)
+
+    {:ok, conn: conn}
   end
 
   describe "index" do
@@ -28,17 +31,18 @@ defmodule KidWeb.UserControllerTest do
 
   describe "create user" do
     test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
+      conn2 = post(conn, Routes.user_path(conn, :create), user: params_for(:new_user))
 
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.user_path(conn, :show, id)
+      assert %{id: id} = redirected_params(conn2)
+      assert redirected_to(conn2) == Routes.user_path(conn, :show, id)
 
-      conn = get(conn, Routes.user_path(conn, :show, id))
-      assert html_response(conn, 200) =~ "Show User"
+      conn3 = get(conn, Routes.user_path(conn, :show, id))
+      assert html_response(conn3, 200) =~ "Show User"
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
+      params = %{params_for(:new_user) | email: nil}
+      conn = post(conn, Routes.user_path(conn, :create), user: params)
       assert html_response(conn, 200) =~ "New User"
     end
   end
@@ -47,7 +51,7 @@ defmodule KidWeb.UserControllerTest do
     setup [:create_user]
 
     test "renders form for editing chosen user", %{conn: conn, user: user} do
-      conn = get(conn, Routes.user_path(conn, :edit, user))
+      conn = get(conn, Routes.user_path(conn, :edit, user.id))
       assert html_response(conn, 200) =~ "Edit User"
     end
   end
@@ -56,15 +60,17 @@ defmodule KidWeb.UserControllerTest do
     setup [:create_user]
 
     test "redirects when data is valid", %{conn: conn, user: user} do
-      conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
-      assert redirected_to(conn) == Routes.user_path(conn, :show, user)
+      params = params_for(:new_user)
+      conn2 = put(conn, Routes.user_path(conn, :update, user.id), user: params)
+      assert redirected_to(conn2) == Routes.user_path(conn, :show, user.id)
 
-      conn = get(conn, Routes.user_path(conn, :show, user))
-      assert html_response(conn, 200) =~ "some updated email"
+      conn3 = get(conn, Routes.user_path(conn, :show, user.id))
+      assert html_response(conn3, 200)
     end
 
     test "renders errors when data is invalid", %{conn: conn, user: user} do
-      conn = put(conn, Routes.user_path(conn, :update, user), user: @invalid_attrs)
+      params = %{params_for(:new_user) | email: nil}
+      conn = put(conn, Routes.user_path(conn, :update, user.id), user: params)
       assert html_response(conn, 200) =~ "Edit User"
     end
   end
@@ -73,16 +79,17 @@ defmodule KidWeb.UserControllerTest do
     setup [:create_user]
 
     test "deletes chosen user", %{conn: conn, user: user} do
-      conn = delete(conn, Routes.user_path(conn, :delete, user))
-      assert redirected_to(conn) == Routes.user_path(conn, :index)
+      conn2 = delete(conn, Routes.user_path(conn, :delete, user.id))
+      assert redirected_to(conn2) == Routes.user_path(conn, :index)
+
       assert_error_sent 404, fn ->
-        get(conn, Routes.user_path(conn, :show, user))
+        get(conn, Routes.user_path(conn, :show, user.id))
       end
     end
   end
 
   defp create_user(_) do
-    user = fixture(:user)
+    user = insert(:user)
     {:ok, user: user}
   end
 end

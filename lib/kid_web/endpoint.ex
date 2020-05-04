@@ -1,7 +1,9 @@
 defmodule KidWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :kid
 
-  session_opts = Application.get_env(:kid, :session) || raise "No plug session options configured in application environment"
+  session_opts =
+    Application.get_env(:kid, :session) ||
+      raise "No plug session options configured in application environment"
 
   # Serve at "/" the static files from "priv/static" directory.
   #

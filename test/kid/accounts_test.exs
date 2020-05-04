@@ -6,9 +6,13 @@ defmodule Kid.AccountsTest do
   describe "users" do
     alias Kid.Accounts.User
 
-    @valid_attrs %{email: "some email", hashed_password: "some hashed_password", password: "some password", username: "some username"}
-    @update_attrs %{email: "some updated email", hashed_password: "some updated hashed_password", password: "some updated password", username: "some updated username"}
-    @invalid_attrs %{email: nil, hashed_password: nil, password: nil, username: nil}
+    @valid_attrs %{email: "user@example.com", password: "some password", username: "some username"}
+    @update_attrs %{
+      email: "updated_user@example.com",
+      password: "some updated password",
+      username: "some updated username"
+    }
+    @invalid_attrs %{email: nil, password: nil, username: nil}
 
     def user_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -31,9 +35,8 @@ defmodule Kid.AccountsTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.email == "some email"
-      assert user.hashed_password == "some hashed_password"
-      assert user.password == "some password"
+      assert {:ok, user} = Argon2.check_pass(user, "some password", hash_key: :hashed_password)
+      assert user.email == "user@example.com"
       assert user.username == "some username"
     end
 
@@ -44,9 +47,8 @@ defmodule Kid.AccountsTest do
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
-      assert user.email == "some updated email"
-      assert user.hashed_password == "some updated hashed_password"
-      assert user.password == "some updated password"
+      assert {:ok, user} = Argon2.check_pass(user, "some updated password", hash_key: :hashed_password)
+      assert user.email == "updated_user@example.com"
       assert user.username == "some updated username"
     end
 

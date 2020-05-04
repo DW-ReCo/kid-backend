@@ -3,7 +3,9 @@ defmodule Kid.Accounts do
   The Accounts context.
   """
 
-  import Ecto.Query, warn: false
+  import Ecto.Query, only: [from: 2]
+
+  alias Argon2
   alias Kid.Repo
 
   alias Kid.Accounts.User
@@ -100,5 +102,34 @@ defmodule Kid.Accounts do
   """
   def change_user(%User{} = user) do
     User.changeset(user, %{})
+  end
+
+  @doc """
+  Authenticates a user.
+
+  ## Examples
+
+      iex> authenticate_user(user, plain_text_password)
+      {:ok, %User{}}
+
+      iex> authenticate_user(user, plain_text_password)
+      {:error, :invalid_credentials}
+
+  """
+  def authenticate_user(username, plain_text_password) do
+    query = from u in User, where: u.username == ^username
+
+    case Repo.one(query) do
+      nil ->
+        Argon2.no_user_verify()
+        {:error, :invalid_credentials}
+
+      user ->
+        if Argon2.verify_pass(plain_text_password, user.hashed_password) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+    end
   end
 end
