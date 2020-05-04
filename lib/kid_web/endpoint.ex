@@ -1,18 +1,7 @@
 defmodule KidWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :kid
 
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  @session_options [
-    store: :cookie,
-    key: "_kid_key",
-    signing_salt: "k2ZCj8sW"
-  ]
-
-  socket "/socket", KidWeb.UserSocket,
-    websocket: true,
-    longpoll: false
+  session_opts = Application.get_env(:kid, :session) || raise "No plug session options configured in application environment"
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -42,6 +31,6 @@ defmodule KidWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-  plug Plug.Session, @session_options
+  plug Plug.Session, session_opts
   plug KidWeb.Router
 end
