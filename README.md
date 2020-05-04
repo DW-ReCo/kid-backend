@@ -3,11 +3,18 @@
 # Dependencies
 
 - Erlang 22.3.3
-- Elixir 1.9.4
+- Elixir 1.9.4 
 
-## Note on depencencies
+A recommended way to set up these dependencies is using [asdf](https://asdf-vm.com/#/) to install and manage global and local Erlang and Elixir installations.
 
-A recommended way to set up dependencies is using [asdf](https://asdf-vm.com/#/) to install and manage global and local Erlang and Elixir installations.
+KID will use the phoenix framework:
+- Phoenix v1.5.1 ([https://hexdocs.pm/phoenix/installation.html](https://hexdocs.pm/phoenix/installation.html))
+
+A few other dependencies needed are:
+- Node.js
+- PostgreSQL
+- On Linux: inotify-tools
+- blackbox ([https://github.com/StackExchange/blackbox](https://github.com/StackExchange/blackbox))
 
 # Run KID-Backend
 
