@@ -6,7 +6,11 @@ defmodule Kid.AccountsTest do
   describe "users" do
     alias Kid.Accounts.User
 
-    @valid_attrs %{email: "user@example.com", password: "some password", username: "some username"}
+    @valid_attrs %{
+      email: "user@example.com",
+      password: "some password",
+      username: "some username"
+    }
     @update_attrs %{
       email: "updated_user@example.com",
       password: "some updated password",
@@ -21,6 +25,7 @@ defmodule Kid.AccountsTest do
         |> Accounts.create_user()
 
       user
+      |> Map.put(:password, nil)
     end
 
     test "list_users/0 returns all users" do
@@ -47,7 +52,10 @@ defmodule Kid.AccountsTest do
     test "update_user/2 with valid data updates the user" do
       user = user_fixture()
       assert {:ok, %User{} = user} = Accounts.update_user(user, @update_attrs)
-      assert {:ok, user} = Argon2.check_pass(user, "some updated password", hash_key: :hashed_password)
+
+      assert {:ok, user} =
+               Argon2.check_pass(user, "some updated password", hash_key: :hashed_password)
+
       assert user.email == "updated_user@example.com"
       assert user.username == "some updated username"
     end

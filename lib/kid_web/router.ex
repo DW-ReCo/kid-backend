@@ -15,7 +15,6 @@ defmodule KidWeb.Router do
 
   scope "/", KidWeb do
     pipe_through :browser
-
   end
 
   # Other scopes may use custom stacks.
